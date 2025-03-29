@@ -48,7 +48,10 @@ jobs:
 
       - name: Update kube config
         run: aws eks update-kubeconfig --name simple-bank --region ap-northeast-2
-
+      
+      - name: Test kubectl connectivity
+        run: kubectl get nodes
+        
       - name: Deploy image to Amazon EKS
         run: |
           kubectl apply -f eks/aws-auth.yaml
