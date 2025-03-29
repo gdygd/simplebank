@@ -48,7 +48,13 @@ jobs:
 
       - name: Update kube config
         run: aws eks update-kubeconfig --name simple-bank --region ap-northeast-2
-      
+
+      - name: Check current context
+        run: kubectl config current-context
+        
+      - name: Debug kubeconfig
+        run: cat ~/.kube/config
+
       - name: Test kubectl connectivity
         run: kubectl get nodes
         
