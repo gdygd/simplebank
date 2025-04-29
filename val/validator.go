@@ -11,7 +11,7 @@ var (
 	isValidFullName = regexp.MustCompile(`^[a-zA-Z\s]+$`).MatchString
 )
 
-func ValicateString(value string, minLength int, maxLength int) error {
+func ValidateString(value string, minLength int, maxLength int) error {
 	n := len(value)
 	if n < minLength || n > maxLength {
 		return fmt.Errorf("must contain from %d-%d characters", minLength, maxLength)
@@ -21,7 +21,7 @@ func ValicateString(value string, minLength int, maxLength int) error {
 }
 
 func ValidateUsername(value string) error {
-	if err := ValicateString(value, 3, 100); err != nil {
+	if err := ValidateString(value, 3, 100); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func ValidateUsername(value string) error {
 }
 
 func ValidateFullname(value string) error {
-	if err := ValicateString(value, 3, 100); err != nil {
+	if err := ValidateString(value, 3, 100); err != nil {
 		return err
 	}
 
@@ -43,15 +43,26 @@ func ValidateFullname(value string) error {
 }
 
 func ValidatePassword(value string) error {
-	return ValicateString(value, 6, 100)
+	return ValidateString(value, 6, 100)
 }
 
 func ValidateEmail(value string) error {
-	if err := ValicateString(value, 3, 200); err != nil {
+	if err := ValidateString(value, 3, 200); err != nil {
 		return err
 	}
 	if _, err := mail.ParseAddress(value); err != nil {
 		return fmt.Errorf("is not a valid email address")
 	}
 	return nil
+}
+
+func ValidateEmailId(value int64) error {
+	if value <= 0 {
+		return fmt.Errorf("must be a positive integer")
+	}
+	return nil
+}
+
+func ValidateSecretCode(value string) error {
+	return ValidateString(value, 32, 128)
 }
