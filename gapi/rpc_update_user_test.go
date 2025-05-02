@@ -22,6 +22,7 @@ func TestUpdateUserAPI(t *testing.T) {
 
 	newName := util.RandomOwner()
 	newEmail := util.RandomEmail()
+	invalidEmail := "invalid-email"
 
 	testCases := []struct {
 		name          string
@@ -145,6 +146,30 @@ func TestUpdateUserAPI(t *testing.T) {
 				st, ok := status.FromError(err)
 				require.True(t, ok)
 				require.Equal(t, codes.Unauthenticated, st.Code())
+
+			},
+		},
+		{
+			name: "InvalidEmail",
+			req: &pb.UpdateUserRequest{
+				Username: user.Username,
+				FullName: &newName,
+				Email:    &invalidEmail,
+			},
+			buildStubs: func(store *mockdb.MockStore) {
+
+				store.EXPECT().
+					UpdateUser(gomock.Any(), gomock.Any()).
+					Times(0)
+			},
+			buildContext: func(t *testing.T, tokenMaker token.Maker) context.Context {
+				return newContextWithBearerToken(t, tokenMaker, user.Username, time.Minute)
+			},
+			checkResponse: func(t *testing.T, res *pb.UpdateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.InvalidArgument, st.Code())
 
 			},
 		},
