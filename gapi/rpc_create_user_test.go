@@ -144,34 +144,31 @@ func TestCreateUserAPI(t *testing.T) {
 				require.Equal(t, codes.Internal, st.Code())
 			},
 		},
-		// {
-		// 	name: "DuplicateUsername",
-		// 	req: &pb.CreateUserRequest{
-		// 		Username: user.Username,
-		// 		Password: password,
-		// 		FullName: user.FullName,
-		// 		Email:    user.Email,
-		// 	},
-		// 	buildStubs: func(store *mockdb.MockStore, taskDistiributor *mockwk.MockTaskDistributor) {
+		{
+			name: "DuplicateUsername",
+			req: &pb.CreateUserRequest{
+				Username: user.Username,
+				Password: password,
+				FullName: user.FullName,
+				Email:    user.Email,
+			},
+			buildStubs: func(store *mockdb.MockStore, taskDistiributor *mockwk.MockTaskDistributor) {
+				store.EXPECT().
+					CreateUserTx(gomock.Any(), gomock.Any()).
+					Times(1).
+					Return(db.CreateUserTxResult{}, db.ErrUniqueViolation)
+				taskDistiributor.EXPECT().
+					DistributeTaskSendVerifyEmail(gomock.Any(), gomock.All(), gomock.Any()).
+					Times(0)
 
-		// 		var err pq.Error = pq.Error{Code: "23505"}
-
-		// 		store.EXPECT().
-		// 			CreateUserTx(gomock.Any(), gomock.Any()).
-		// 			Times(1).
-		// 			Return(db.CreateUserTxResult{}, err)
-		// 		taskDistiributor.EXPECT().
-		// 			DistributeTaskSendVerifyEmail(gomock.Any(), gomock.All(), gomock.Any()).
-		// 			Times(0)
-
-		// 	},
-		// 	checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
-		// 		require.Error(t, err)
-		// 		st, ok := status.FromError(err)
-		// 		require.True(t, ok)
-		// 		require.Equal(t, codes.AlreadyExists, st.Code())
-		// 	},
-		// },
+			},
+			checkResponse: func(t *testing.T, res *pb.CreateUserResponse, err error) {
+				require.Error(t, err)
+				st, ok := status.FromError(err)
+				require.True(t, ok)
+				require.Equal(t, codes.AlreadyExists, st.Code())
+			},
+		},
 		{
 			name: "InvalidEmail",
 			req: &pb.CreateUserRequest{
